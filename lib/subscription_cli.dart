@@ -3,3 +3,4 @@
 library subscription_cli;
 
 export 'src/cli.dart';
+export 'src/config/cli_config.dart';

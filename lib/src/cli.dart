@@ -1,6 +1,8 @@
 import 'package:args/command_runner.dart';
 import 'package:subscription_cli/src/command/base_cmd.dart';
 
+import 'command/version_cmd.dart';
+
 class Cli {
   Future<void> main(List<String> arguments) async {
     final CommandRunner<void> runner = CommandRunner<void>(
@@ -17,6 +19,8 @@ class Cli {
     );
 
     void addCommand(BaseCommond command) => runner.addCommand(command);
+
+    addCommand(VersionCommand());
 
     runner.run(arguments);
   }
