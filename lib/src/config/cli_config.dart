@@ -4,7 +4,5 @@ final config = CliConfig._();
 class CliConfig {
   CliConfig._();
 
-  void changeConfig(){
-    
-  }
+  void changeConfig() {}
 }
