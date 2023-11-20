@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+import 'package:subscription_cli/src/command/base_cmd.dart';
 
 class Cli {
   Future<void> main(List<String> arguments) async {
@@ -6,6 +7,16 @@ class Cli {
       'subscription_cli',
       'A command-line interface for managing subscriptions.',
     );
+
+    runner.argParser.addFlag(
+      'verbose',
+      abbr: 'v',
+      defaultsTo: false,
+      negatable: false,
+      help: 'Show extra logging information.',
+    );
+
+    void addCommand(BaseCommond command) => runner.addCommand(command);
 
     runner.run(arguments);
   }

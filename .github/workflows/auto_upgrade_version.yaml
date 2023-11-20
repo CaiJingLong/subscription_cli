@@ -1,0 +1,30 @@
+name: "Auto change version number when pubspec changed"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "pubspec.yaml"
+
+jobs:
+  update-dart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Make version dart file"
+        run: python3 .github/workflows/auto_upgrade_version.py
+      - name: "Create PR"
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: auto upgrade version"
+          title: "chore: auto upgrade version"
+          body: "chore: auto upgrade version"
+          branch: "auto-upgrade-version"
+          branch-suffix: "timestamp"
+          delete-branch: true
+          labels: "auto-merge"
