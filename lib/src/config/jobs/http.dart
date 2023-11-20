@@ -1,5 +1,4 @@
 import 'job.dart';
-import '../config.dart';
 
 class HttpJob extends Jobs {
   HttpJob({
