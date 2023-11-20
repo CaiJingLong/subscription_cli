@@ -1,0 +1,41 @@
+name: Auto format code
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - lib/**.dart
+      - bin/**.dart
+
+jobs:
+  check-format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    name: Check format
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+      - name: Check format
+        run: |
+          dart format lib/
+          dart format bin/
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Auto format code"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          title: "chore: Auto format code"
+          body: "chore: Auto format code"
+          signoff: true
+          branch: "auto-format"
+          branch-suffix: "timestamp"
+          delete-branch: true
+          labels: "auto-merge"
