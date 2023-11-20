@@ -2,7 +2,6 @@ index_generator:
   exclude:
     - "**.g.dart"
     - "src/command/**"
-    - "src/util/**"
     - "src/version.dart"
     - "src/config/cli_config.dart"
   # Define the paths of the folders in which to generate the index files

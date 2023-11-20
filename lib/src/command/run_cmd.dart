@@ -13,5 +13,5 @@ class RunCommand extends BaseCommond {
   List<String> get aliases => ['r'];
 
   @override
-  FutureOr<void>? runCommand() {}
+  FutureOr<void>? runCommand(argResults) {}
 }

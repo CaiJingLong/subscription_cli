@@ -2,7 +2,33 @@ import 'dart:io';
 
 import 'package:yaml/yaml.dart';
 
+/// The context of config
+class Context {
+  const Context({
+    required this.basePath,
+    required this.proxy,
+    required this.yamlDocument,
+  });
+
+  /// The original yaml document.
+  final YamlDocument? yamlDocument;
+
+  /// Current base path
+  final String? basePath;
+
+  /// Current proxy
+  final Proxy? proxy;
+}
+
 class Proxy {
+  const Proxy({
+    required this.proxyHost,
+    required this.proxyPort,
+    required this.proxyUsername,
+    required this.proxyPassword,
+    required this.proxyScheme,
+  });
+
   /// proxy host
   ///
   /// Define in the node of `proxy.host`.
@@ -28,14 +54,7 @@ class Proxy {
   /// Define in the node of `proxy.scheme`.
   final String? proxyScheme;
 
-  Proxy({
-    required this.proxyHost,
-    required this.proxyPort,
-    required this.proxyUsername,
-    required this.proxyPassword,
-    required this.proxyScheme,
-  });
-
+  /// Create a proxy by [map].
   static Proxy? byMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return Proxy(
@@ -47,6 +66,7 @@ class Proxy {
     );
   }
 
+  /// Merge the global proxy and local proxy.
   static Proxy merge(Proxy? globalProxy, Proxy? localProxy) {
     return Proxy(
       proxyHost: localProxy?.proxyHost ?? globalProxy?.proxyHost,
@@ -58,60 +78,41 @@ class Proxy {
   }
 }
 
-/// The context of config
-class Context {
-  /// The original yaml document.
-  final YamlDocument? yamlDocument;
-
-  /// Current base path
-  final String basePath;
-
-  /// Current proxy
-  final Proxy? proxy;
-
-  Context({
-    required this.basePath,
-    required this.proxy,
-    required this.yamlDocument,
-  });
-}
-
 class Config {
+  const Config({
+    required this.globalConfig,
+    required this.subscriptionConfig,
+  });
+
   /// Current global config
   final Context globalConfig;
 
   /// Current subscription config
   final List<Subscription> subscriptionConfig;
 
-  Config({
-    required this.globalConfig,
-    required this.subscriptionConfig,
-  });
+  factory Config.fromYamlText(String yamlText) {
+    final YamlDocument doc = loadYamlDocument(yamlText);
 
-  factory Config.fromYamlPath(String yamlPath) {
-    final YamlDocument doc =
-        loadYamlDocument(File(yamlPath).readAsStringSync());
-
-    final YamlMap globalConfigMap = doc.contents.value['config'];
-    final YamlMap proxyMap = globalConfigMap['proxy'];
+    final Map? globalConfigMap = doc.contents.value['config'];
+    final Map? proxyMap = globalConfigMap?['proxy'];
 
     final context = Context(
       yamlDocument: doc,
-      basePath: globalConfigMap['basePath'],
+      basePath: globalConfigMap?['basePath'],
       proxy: Proxy(
-        proxyHost: proxyMap['host'],
-        proxyPort: proxyMap['port'],
-        proxyUsername: proxyMap['username'],
-        proxyPassword: proxyMap['password'],
-        proxyScheme: proxyMap['scheme'],
+        proxyHost: proxyMap?['host'],
+        proxyPort: proxyMap?['port'],
+        proxyUsername: proxyMap?['username'],
+        proxyPassword: proxyMap?['password'],
+        proxyScheme: proxyMap?['scheme'],
       ),
     );
 
-    final YamlList jobsList = doc.contents.value['jobs'];
+    final List? jobsList = doc.contents.value?['jobs'];
 
     final List<Subscription> subscriptionConfig = [];
 
-    for (final jobs in jobsList) {
+    for (final jobs in jobsList ?? []) {
       subscriptionConfig.add(
         Subscription.byMap(
           config: context,
@@ -125,10 +126,31 @@ class Config {
       subscriptionConfig: subscriptionConfig,
     );
   }
+
+  factory Config.fromYamlFile(File yamlFile) {
+    return Config.fromYamlText(yamlFile.readAsStringSync());
+  }
+
+  String analyze() {
+    return 'text';
+  }
+
+  String analyzeJson() {
+    return 'json';
+  }
 }
 
 /// Base config of subscription
 class BaseConfig {
+  /// The base config of subscription
+  const BaseConfig({
+    required this.globalConfig,
+    required this.proxy,
+    required this.type,
+    required this.enabled,
+    required this.overwrite,
+  });
+
   /// The global config of subscription, it comes from config.yaml.
   /// Define in the node of `config`.
   final Context globalConfig;
@@ -158,18 +180,15 @@ class BaseConfig {
   ///
   /// If the value is true, it will overwrite the old file.
   final bool overwrite;
-
-  /// The base config of subscription
-  BaseConfig({
-    required this.globalConfig,
-    required this.proxy,
-    required this.type,
-    required this.enabled,
-    required this.overwrite,
-  });
 }
 
+/// The base class of subscription
 abstract class Subscription {
+  const Subscription({
+    required this.baseConfig,
+  });
+
+  /// Create a subscription by [map].
   factory Subscription.byMap({
     required Context config,
     required Map<String, dynamic> map,
@@ -187,6 +206,7 @@ abstract class Subscription {
       overwrite: map['overwrite'] ?? false,
     );
 
+    // Use the type to decide which subscription to create.
     if (type == 'github-release') {
       return GithubReleaseSubscription(
         baseConfig: baseConfig,
@@ -199,10 +219,6 @@ abstract class Subscription {
     throw UnimplementedError('The type of subscription is not supported.');
   }
 
-  Subscription({
-    required this.baseConfig,
-  });
-
   final BaseConfig baseConfig;
 
   Context get globalConfig => baseConfig.globalConfig;
@@ -211,7 +227,7 @@ abstract class Subscription {
 }
 
 class GithubReleaseSubscription extends Subscription {
-  GithubReleaseSubscription({
+  const GithubReleaseSubscription({
     required super.baseConfig,
     required this.owner,
     required this.repo,
