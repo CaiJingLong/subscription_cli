@@ -1,5 +1,7 @@
 import 'package:args/command_runner.dart';
+import 'package:subscription_cli/src/command/analyze_cmd.dart';
 import 'package:subscription_cli/src/command/base_cmd.dart';
+import 'package:subscription_cli/src/command/run_cmd.dart';
 
 import 'command/version_cmd.dart';
 
@@ -20,6 +22,8 @@ class Cli {
 
     void addCommand(BaseCommond command) => runner.addCommand(command);
 
+    addCommand(RunCommand());
+    addCommand(AnalyzeCommand());
     addCommand(VersionCommand());
 
     runner.run(arguments);

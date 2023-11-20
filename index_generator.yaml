@@ -4,6 +4,7 @@ index_generator:
     - "src/command/**"
     - "src/util/**"
     - "src/version.dart"
+    - "src/config/cli_config.dart"
   # Define the paths of the folders in which to generate the index files
   indexes:
     - path: lib
