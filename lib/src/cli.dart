@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:subscription_cli/src/command/analyze_cmd.dart';
 import 'package:subscription_cli/src/command/base_cmd.dart';
 import 'package:subscription_cli/src/command/run_cmd.dart';
 
 import 'command/version_cmd.dart';
+import 'util/log.dart';
 
 class Cli {
   Future<void> main(List<String> arguments) async {
@@ -26,6 +29,22 @@ class Cli {
     addCommand(AnalyzeCommand());
     addCommand(VersionCommand());
 
-    runner.run(arguments);
+    try {
+      await runner.run(arguments);
+    } catch (e, st) {
+      logger.log(e.toString());
+
+      logger.debug(st.toString());
+
+      if (e is ArgumentError) {
+        exit(10);
+      }
+
+      if (e is UnimplementedError) {
+        exit(11);
+      }
+
+      exit(-1);
+    }
   }
 }
