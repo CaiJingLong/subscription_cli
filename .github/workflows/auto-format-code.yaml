@@ -10,12 +10,12 @@ on:
       - .github/workflows/auto-format-code.yaml
 
 jobs:
-  check-format:
+  check-code:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-    name: Check format
+    name: Check code
     steps:
       - uses: actions/checkout@v4
       - name: Setup flutter
@@ -28,9 +28,7 @@ jobs:
           dart format lib/
           dart format bin/
       - name: Fix code
-        run: |
-          dart fix lib/
-          dart fix bin/
+        run: dart fix --apply
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
