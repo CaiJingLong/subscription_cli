@@ -24,8 +24,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: auto upgrade version"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           title: "chore: auto upgrade version"
           body: "chore: auto upgrade version"
+          signoff: true
           branch: "auto-upgrade-version"
           branch-suffix: "timestamp"
           delete-branch: true
