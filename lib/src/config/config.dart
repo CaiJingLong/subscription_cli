@@ -22,6 +22,8 @@ class Context {
   /// Current proxy
   final Proxy? proxy;
 
+  String get workingDirectory => Directory.current.path;
+
   String analyze() {
     LogBuffer buffer = LogBuffer();
 
@@ -152,7 +154,7 @@ class Config {
     for (final job in jobsList ?? []) {
       jobs.add(
         Jobs.byMap(
-          config: context,
+          context: context,
           map: job,
         ),
       );
@@ -206,18 +208,20 @@ class Config {
 class BaseConfig {
   /// The base config of job
   const BaseConfig({
-    required this.globalConfig,
+    required this.context,
     required this.proxy,
     required this.type,
     required this.enabled,
     required this.overwrite,
     required this.name,
     this.description,
+    this.output,
+    this.workingDirectory,
   });
 
   /// The global config of job, it comes from config.yaml.
   /// Define in the node of `config`.
-  final Context globalConfig;
+  final Context context;
 
   /// The proxy config of job, it comes from config.yaml.
   ///
@@ -254,4 +258,22 @@ class BaseConfig {
   ///
   /// Define in the node of `jobs.description`.
   final String? description;
+
+  /// The output of job, it comes from config.yaml.
+  ///
+  /// Define in the node of `jobs.output`.
+  ///
+  /// If the value is null, it will output to global basePath.
+  /// If the basePath of global config is null, it will output to current path.
+  ///
+  /// The value support relative path and absolute path.
+  /// If the value is relative path, it will be relative to basePath of global config, or current path (if the global basePath is null).
+  ///
+  /// The absolute path is must be start with `/`(Unix like) or `X:\`(Windows).
+  final String? output;
+
+  /// The output path of job, it comes from config.yaml.
+  ///
+  /// Define in the node of `jobs.workingDir`.
+  final String? workingDirectory;
 }

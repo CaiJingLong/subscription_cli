@@ -1,5 +1,6 @@
 import 'package:subscription_cli/src/config/config.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
+import 'package:path/path.dart' as path;
 
 import 'github_release.dart';
 
@@ -11,11 +12,11 @@ abstract class Jobs {
 
   /// Create a job by [map].
   factory Jobs.byMap({
-    required Context config,
+    required Context context,
     required Map map,
   }) {
     final proxy = Proxy.byMap(map['proxy']);
-    final globalProxy = config.proxy;
+    final globalProxy = context.proxy;
     final mergedProxy = Proxy.merge(globalProxy, proxy);
     final type = map['type'];
 
@@ -32,13 +33,15 @@ abstract class Jobs {
     }
 
     final baseConfig = BaseConfig(
-      globalConfig: config,
+      context: context,
       proxy: mergedProxy,
       type: type,
       enabled: map['enable'] ?? true,
       overwrite: map['overwrite'] ?? false,
       name: map.required('name'),
       description: map['description'],
+      output: map['output'],
+      workingDirectory: map['workingDir'],
     );
 
     // Use the type to decide which job to create.
@@ -56,23 +59,33 @@ abstract class Jobs {
 
   final BaseConfig baseConfig;
 
-  Context get globalConfig => baseConfig.globalConfig;
+  Context get context => baseConfig.context;
   bool get enabled => baseConfig.enabled;
   bool get overwrite => baseConfig.overwrite;
   Proxy? get proxy => baseConfig.proxy;
   String get type => baseConfig.type;
-  String? get name => baseConfig.name;
+  String get name => baseConfig.name;
   String? get description => baseConfig.description;
+
+  String get outputPath {
+    final workingDir = baseConfig.workingDirectory ?? context.workingDirectory;
+    final name = baseConfig.output ?? this.name;
+    final result = path.join(workingDir, name);
+    return result;
+  }
 
   String baseConfigAnalyze() {
     LogBuffer buffer = LogBuffer();
 
-    if (name != null) {
-      buffer.writeln('name: $name');
-    }
+    buffer.writeln('name: $name');
 
     if (description != null) {
       buffer.writeln('description: $description');
+    }
+
+    if (proxy != null) {
+      buffer.writeln('Use proxy:');
+      buffer.writeMultiLine(proxy!.analyze(), indent: 2);
     }
 
     buffer.writeln('type: $type');
