@@ -7,6 +7,7 @@ on:
     paths:
       - lib/**.dart
       - bin/**.dart
+      - .github/workflows/auto-format-code.yaml
 
 jobs:
   check-format:
