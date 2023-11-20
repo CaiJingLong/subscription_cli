@@ -6,12 +6,14 @@ on:
       - main
     paths:
       - "pubspec.yaml"
+      - ".github/workflows/auto_upgrade_version.yaml"
+      - ".github/workflows/auto_upgrade_version.py"
 
 jobs:
   update-dart:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
