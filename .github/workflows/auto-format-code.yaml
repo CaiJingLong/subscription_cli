@@ -23,10 +23,14 @@ jobs:
         with:
           cache: true
           channel: stable
-      - name: Check format
+      - name: Format code
         run: |
           dart format lib/
           dart format bin/
+      - name: Fix code
+        run: |
+          dart fix lib/
+          dart fix bin/
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
