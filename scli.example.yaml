@@ -12,4 +12,5 @@ jobs:
     params:
       platform: macos
     asset: "#{platform}_#{version}.tar.gz"
-    
+    post:
+      input: 
