@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'job.dart';
 
-class HttpJob extends Jobs {
+class HttpJob extends Job {
   HttpJob({
     required super.baseConfig,
     required this.url,
@@ -14,7 +16,7 @@ class HttpJob extends Jobs {
   }
 
   @override
-  Future<void> doDownload(config) {
+  Future<File> doDownload(config) {
     throw UnimplementedError();
   }
 }

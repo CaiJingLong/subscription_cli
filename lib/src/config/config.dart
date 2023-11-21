@@ -143,7 +143,7 @@ class Config {
   final Context globalConfig;
 
   /// Current job config
-  final List<Jobs> jobs;
+  final List<Job> jobs;
 
   factory Config.fromYamlText(String yamlText) {
     yamlText = EnvUtil.replaceEnv(yamlText);
@@ -162,11 +162,11 @@ class Config {
 
     final List? jobsList = doc.contents.value?['jobs'];
 
-    final List<Jobs> jobs = [];
+    final List<Job> jobs = [];
 
     for (final job in jobsList ?? []) {
       jobs.add(
-        Jobs.byMap(
+        Job.byMap(
           context: context,
           map: job,
         ),

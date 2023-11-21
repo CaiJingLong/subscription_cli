@@ -7,6 +7,7 @@ export 'src/config/config.dart';
 export 'src/config/jobs/github_release.dart';
 export 'src/config/jobs/http.dart';
 export 'src/config/jobs/job.dart';
+export 'src/defs.dart';
 export 'src/util/buffer.dart';
 export 'src/util/env_util.dart';
 export 'src/util/http.dart';

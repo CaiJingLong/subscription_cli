@@ -1,3 +1,5 @@
+import 'dart:io';
+
 final logger = Logger._();
 
 class Logger {
@@ -13,5 +15,9 @@ class Logger {
 
   void log(String message) {
     print(message);
+  }
+
+  void write(String message) {
+    stdout.write(message);
   }
 }

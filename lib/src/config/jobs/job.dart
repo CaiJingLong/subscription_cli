@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:subscription_cli/src/config/config.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
@@ -7,13 +8,13 @@ import 'package:path/path.dart' as path;
 import 'github_release.dart';
 
 /// The base class of job
-abstract class Jobs {
-  const Jobs({
+abstract class Job with JobMixin {
+  const Job({
     required this.baseConfig,
   });
 
   /// Create a job by [map].
-  factory Jobs.byMap({
+  factory Job.byMap({
     required Context context,
     required Map map,
   }) {
@@ -76,6 +77,7 @@ abstract class Jobs {
   String get type => baseConfig.type;
   String get name => baseConfig.name;
   String? get description => baseConfig.description;
+  @override
   Map<dynamic, dynamic> get params => baseConfig.map['params'] ?? {};
 
   String get outputPath {
@@ -108,10 +110,11 @@ abstract class Jobs {
   String? analyze();
 
   Future<void> run(Config config) async {
-    await doDownload(config);
+    final file = await doDownload(config);
+    await handleAfterDownload(file);
   }
 
-  Future<void> doDownload(Config config);
+  Future<File> doDownload(Config config);
 
   String prettyJsonForString(String text) {
     return prettyJsonFofObj(json.decode(text));
@@ -133,4 +136,10 @@ extension _JobsMap on Map {
     }
     return value;
   }
+}
+
+mixin JobMixin {
+  Map<dynamic, dynamic> get params;
+
+  Future<void> handleAfterDownload(File asset) async {}
 }

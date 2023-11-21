@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:subscription_cli/src/config/config.dart';
+import 'package:subscription_cli/src/defs.dart';
 
 typedef Decoder = Converter<List<int>, String>;
 
@@ -38,7 +40,9 @@ class HttpUtils {
     required String path,
     int? totalSize,
     Function(int current, int total)? downloadBytesCallback,
+    VoidCallback? doneCallback,
   }) async {
+    final Completer<void> completer = Completer<void>();
     final httpClient = _createClient();
     final uri = Uri.parse(url);
 
@@ -61,8 +65,12 @@ class HttpUtils {
       onDone: () {
         sink.close();
         httpClient.close();
+        doneCallback?.call();
+        completer.complete();
       },
     );
+
+    return completer.future;
   }
 
   Future<String> get(

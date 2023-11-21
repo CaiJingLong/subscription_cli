@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'package:subscription_cli/subscription_cli.dart';
 
-class GithubReleaseJob extends Jobs {
+class GithubReleaseJob extends Job {
   const GithubReleaseJob({
     required super.baseConfig,
     required this.owner,
@@ -38,7 +40,7 @@ class GithubReleaseJob extends Jobs {
   }
 
   @override
-  Future<void> doDownload(config) async {
+  Future<File> doDownload(config) async {
     final httpClient = HttpUtils(proxy: baseConfig.proxy);
     final url = 'https://api.github.com/repos/$owner/$repo/releases';
 
@@ -63,8 +65,35 @@ class GithubReleaseJob extends Jobs {
     });
 
     logger.debug('asset: ${prettyJsonFofObj(asset)}');
-    final downloadUrl = asset['browser_download_url'];
+    final String downloadUrl = asset['browser_download_url'];
 
     logger.log('download url: $downloadUrl');
+
+    final tmpDir = Directory.systemTemp.createTempSync();
+    final outputFile = File(path.join(tmpDir.path, needAssetName));
+
+    if (outputFile.existsSync()) {
+      logger.log('Target file exists, delete it.');
+      outputFile.deleteSync();
+    }
+
+    logger.log('output file: ${outputFile.path}');
+
+    await httpClient.download(
+      url: downloadUrl,
+      path: outputFile.path,
+      totalSize: asset['size'],
+      downloadBytesCallback: (current, total) {
+        final progress = (current / total * 100).toStringAsFixed(2);
+        logger.write('\rDownload progress: $progress%');
+      },
+      doneCallback: () {
+        logger.write('\n');
+      },
+    );
+
+    logger.log('Download done.');
+
+    return outputFile;
   }
 }
