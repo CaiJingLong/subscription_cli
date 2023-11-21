@@ -3,3 +3,5 @@
 .dart_tool/
 pubspec.lock
 scli.yaml
+
+output/

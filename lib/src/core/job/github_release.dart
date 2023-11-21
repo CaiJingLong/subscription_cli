@@ -96,4 +96,14 @@ class GithubReleaseJob extends Job {
 
     return outputFile;
   }
+
+  @override
+  Map configMap() {
+    return {
+      'owner': owner,
+      'repo': repo,
+      'includePrerelease': includePrerelease,
+      'asset': asset,
+    };
+  }
 }

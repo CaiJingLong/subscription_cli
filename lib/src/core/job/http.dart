@@ -19,4 +19,11 @@ class HttpJob extends Job {
   Future<File> doDownload(config) {
     throw UnimplementedError();
   }
+
+  @override
+  Map configMap() {
+    return {
+      'url': url,
+    };
+  }
 }

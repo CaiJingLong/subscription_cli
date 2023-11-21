@@ -3,13 +3,14 @@ import 'dart:io';
 
 import 'package:subscription_cli/src/core/config.dart';
 import 'package:subscription_cli/src/core/handler/handler.dart';
+import 'package:subscription_cli/src/core/mappable.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
 import 'package:path/path.dart' as path;
 
 import 'github_release.dart';
 
 /// The base class of job
-abstract class Job with JobMixin {
+abstract class Job with JobMixin, Mappable {
   const Job({
     required this.baseConfig,
   });
@@ -126,6 +127,23 @@ abstract class Job with JobMixin {
     final result = encoder.convert(obj);
     return result;
   }
+
+  @override
+  Map toMap() {
+    return {
+      'type': type,
+      'name': name,
+      'description': description,
+      'enabled': enabled,
+      'overwrite': overwrite,
+      'output': outputPath,
+      'workingDir': baseConfig.workingDirectory,
+      'params': params,
+      ...configMap(),
+    };
+  }
+
+  Map configMap();
 }
 
 extension _JobsMap on Map {

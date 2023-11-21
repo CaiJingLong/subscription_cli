@@ -5,9 +5,10 @@ import 'package:yaml/yaml.dart';
 
 import '../util/buffer.dart';
 import 'job/job.dart';
+import 'mappable.dart';
 
 /// The context of config
-class Context {
+class Context with Mappable {
   const Context({
     required this.basePath,
     required this.proxy,
@@ -51,9 +52,18 @@ class Context {
 
     return buffer.toString();
   }
+
+  @override
+  Map toMap() {
+    return {
+      'basePath': basePath,
+      'proxy': proxy?.toMap(),
+      'githubToken': githubToken,
+    };
+  }
 }
 
-class Proxy {
+class Proxy with Mappable {
   const Proxy({
     required this.proxyHost,
     required this.proxyPort,
@@ -131,9 +141,20 @@ class Proxy {
 
     return buffer.toString();
   }
+
+  @override
+  Map toMap() {
+    return {
+      'scheme': proxyScheme,
+      'host': proxyHost,
+      'port': proxyPort,
+      'username': proxyUsername,
+      'password': proxyPassword,
+    };
+  }
 }
 
-class Config {
+class Config with Mappable {
   const Config({
     required this.globalConfig,
     required this.jobs,
@@ -215,6 +236,14 @@ class Config {
   String analyzeJson() {
     return 'json';
   }
+
+  @override
+  Map toMap() {
+    return {
+      'config': globalConfig.toMap(),
+      'jobs': jobs.map((e) => e.toMap()).toList(),
+    };
+  }
 }
 
 /// Base config of job
@@ -243,9 +272,9 @@ class BaseConfig {
   final Proxy? proxy;
 
   /// The map of job, it comes from config.yaml.
-  /// 
+  ///
   /// Define in the node of `jobs`.
-  /// 
+  ///
   /// Contains all the config of job.
   final Map map;
 
