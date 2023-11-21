@@ -223,6 +223,7 @@ class BaseConfig {
   const BaseConfig({
     required this.context,
     required this.proxy,
+    required this.map,
     required this.type,
     required this.enabled,
     required this.overwrite,
@@ -240,6 +241,13 @@ class BaseConfig {
   ///
   /// Define in the node of `config.proxy`.
   final Proxy? proxy;
+
+  /// The map of job, it comes from config.yaml.
+  /// 
+  /// Define in the node of `jobs`.
+  /// 
+  /// Contains all the config of job.
+  final Map map;
 
   /// The type of job, it comes from config.yaml.
   ///

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
@@ -26,11 +27,25 @@ abstract class BaseCommond extends Command<void> {
     return runCommand(argResults);
   }
 
-  FutureOr<void>? runCommand(ArgResults? argResults);
+  Future<void> runCommand(ArgResults? argResults);
 
   void initialize(ArgParser argParser) {}
 
   void throwException(String message) {
     throw UsageException(message, usage);
+  }
+
+  Config readConfig() {
+    final configFile = File('scli.yaml');
+
+    if (!configFile.existsSync()) {
+      logger.debug('Config file not found.');
+      throwException('Config file not found.');
+    }
+
+    logger.debug('Config file found.');
+
+    final config = Config.fromYamlFile(configFile);
+    return config;
   }
 }

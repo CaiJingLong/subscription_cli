@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:subscription_cli/src/config/config.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
 import 'package:path/path.dart' as path;
@@ -35,6 +37,7 @@ abstract class Jobs {
     final baseConfig = BaseConfig(
       context: context,
       proxy: mergedProxy,
+      map: map,
       type: type,
       enabled: map['enable'] ?? true,
       overwrite: map['overwrite'] ?? false,
@@ -50,6 +53,7 @@ abstract class Jobs {
         baseConfig: baseConfig,
         owner: map.required('owner'),
         repo: map.required('repo'),
+        asset: map.required('asset'),
         includePrerelease: map['includePrerelease'] ?? false,
       );
     }
@@ -60,12 +64,15 @@ abstract class Jobs {
   final BaseConfig baseConfig;
 
   Context get context => baseConfig.context;
+  Map get map => baseConfig.map;
+
   bool get enabled => baseConfig.enabled;
   bool get overwrite => baseConfig.overwrite;
   Proxy? get proxy => baseConfig.proxy;
   String get type => baseConfig.type;
   String get name => baseConfig.name;
   String? get description => baseConfig.description;
+  Map<dynamic, dynamic> get params => baseConfig.map['params'] ?? {};
 
   String get outputPath {
     final workingDir = baseConfig.workingDirectory ?? context.workingDirectory;
@@ -95,6 +102,22 @@ abstract class Jobs {
   }
 
   String? analyze();
+
+  Future<void> run(Config config) async {
+    await doDownload(config);
+  }
+
+  Future<void> doDownload(Config config);
+
+  String prettyJsonForString(String text) {
+    return prettyJsonFofObj(json.decode(text));
+  }
+
+  String prettyJsonFofObj(Object obj) {
+    final encoder = JsonEncoder.withIndent('  ');
+    final result = encoder.convert(obj);
+    return result;
+  }
 }
 
 extension _JobsMap on Map {

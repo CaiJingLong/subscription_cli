@@ -13,5 +13,11 @@ class RunCommand extends BaseCommond {
   List<String> get aliases => ['r'];
 
   @override
-  FutureOr<void>? runCommand(argResults) {}
+  Future<void> runCommand(argResults) async {
+    final config = readConfig();
+
+    for (final job in config.jobs) {
+      await job.run(config);
+    }
+  }
 }

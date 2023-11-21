@@ -16,7 +16,7 @@ class VersionCommand extends BaseCommond {
   List<String> get aliases => ['v'];
 
   @override
-  FutureOr<void>? runCommand(argResults) {
+  Future<void> runCommand(argResults) async {
     logger.log(Version.version);
   }
 }

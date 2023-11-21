@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:subscription_cli/src/command/base_cmd.dart';
@@ -26,17 +25,8 @@ class AnalyzeCommand extends BaseCommond {
   }
 
   @override
-  FutureOr<void>? runCommand(ArgResults? argResults) async {
-    final configFile = File('scli.yaml');
-
-    if (!configFile.existsSync()) {
-      logger.debug('Config file not found.');
-      throwException('Config file not found.');
-    }
-
-    logger.debug('Config file found.');
-
-    final config = Config.fromYamlFile(configFile);
+  Future<void> runCommand(ArgResults? argResults) async {
+    final config = readConfig();
 
     if (argResults!['json'] as bool) {
       logger.log(config.analyzeJson());

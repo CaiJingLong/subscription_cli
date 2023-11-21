@@ -1,25 +1,52 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:subscription_cli/src/config/config.dart';
 
+typedef Decoder = Converter<List<int>, String>;
+
 class HttpUtils {
-  static Future<void> download(
-    String url,
-    String path,
-    Function(int current, int total) downloadBytesCallback, {
-    Proxy? proxy,
-  }) async {
+  final Proxy? proxy;
+  final String? githubToken;
+
+  HttpUtils({
+    this.proxy,
+    this.githubToken,
+  });
+
+  HttpClient _createClient() {
     HttpClient httpClient = HttpClient();
+    final proxy = this.proxy;
     if (proxy != null) {
       httpClient.findProxy = (uri) {
         return 'PROXY ${proxy.proxyHost}:${proxy.proxyPort}';
       };
     }
+    return httpClient;
+  }
 
-    HttpClientRequest request = await httpClient.getUrl(Uri.parse(url));
+  void _checkAddGithubToken(Uri uri, HttpHeaders headers) {
+    if (uri.host == 'github.com' || uri.host.endsWith('.github.com')) {
+      if (githubToken != null) {
+        headers.add('Authorization', 'Bearer $githubToken');
+      }
+    }
+  }
+
+  Future<void> download({
+    required String url,
+    required String path,
+    int? totalSize,
+    Function(int current, int total)? downloadBytesCallback,
+  }) async {
+    final httpClient = _createClient();
+    final uri = Uri.parse(url);
+
+    HttpClientRequest request = await httpClient.getUrl(uri);
+    _checkAddGithubToken(uri, request.headers);
     HttpClientResponse response = await request.close();
 
-    int total = response.contentLength;
+    int total = totalSize ?? response.contentLength;
     int current = 0;
 
     var file = File(path);
@@ -29,11 +56,29 @@ class HttpUtils {
       (data) {
         sink.add(data);
         current += data.length;
-        downloadBytesCallback(current, total);
+        downloadBytesCallback?.call(current, total);
       },
       onDone: () {
         sink.close();
+        httpClient.close();
       },
     );
+  }
+
+  Future<String> get(
+    String url, {
+    Proxy? proxy,
+    Decoder? decoder,
+  }) async {
+    decoder ??= utf8.decoder;
+    final httpClient = _createClient();
+
+    final uri = Uri.parse(url);
+    HttpClientRequest request = await httpClient.getUrl(uri);
+    _checkAddGithubToken(uri, request.headers);
+    HttpClientResponse response = await request.close();
+    var result = await response.transform(decoder).join();
+    httpClient.close();
+    return result;
   }
 }
