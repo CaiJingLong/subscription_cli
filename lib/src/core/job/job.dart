@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:subscription_cli/src/config/config.dart';
+import 'package:subscription_cli/src/core/config.dart';
+import 'package:subscription_cli/src/core/handler/handler.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
 import 'package:path/path.dart' as path;
 
@@ -111,7 +112,7 @@ abstract class Job with JobMixin {
 
   Future<void> run(Config config) async {
     final file = await doDownload(config);
-    await handleAfterDownload(file);
+    PostHandler().handleAfterDownload(this, config, file);
   }
 
   Future<File> doDownload(Config config);

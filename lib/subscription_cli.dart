@@ -3,10 +3,11 @@
 library subscription_cli;
 
 export 'src/cli.dart';
-export 'src/config/config.dart';
-export 'src/config/jobs/github_release.dart';
-export 'src/config/jobs/http.dart';
-export 'src/config/jobs/job.dart';
+export 'src/core/cli_config.dart';
+export 'src/core/config.dart';
+export 'src/core/job/github_release.dart';
+export 'src/core/job/http.dart';
+export 'src/core/job/job.dart';
 export 'src/defs.dart';
 export 'src/util/buffer.dart';
 export 'src/util/env_util.dart';

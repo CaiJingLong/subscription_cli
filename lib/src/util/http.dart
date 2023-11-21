@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:subscription_cli/src/config/config.dart';
+import 'package:subscription_cli/src/core/config.dart';
 import 'package:subscription_cli/src/defs.dart';
 
 typedef Decoder = Converter<List<int>, String>;

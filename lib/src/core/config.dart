@@ -4,7 +4,7 @@ import 'package:subscription_cli/src/util/env_util.dart';
 import 'package:yaml/yaml.dart';
 
 import '../util/buffer.dart';
-import 'jobs/job.dart';
+import 'job/job.dart';
 
 /// The context of config
 class Context {
