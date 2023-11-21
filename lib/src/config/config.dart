@@ -243,9 +243,9 @@ class BaseConfig {
   final Proxy? proxy;
 
   /// The map of job, it comes from config.yaml.
-  /// 
+  ///
   /// Define in the node of `jobs`.
-  /// 
+  ///
   /// Contains all the config of job.
   final Map map;
 
