@@ -48,7 +48,11 @@ abstract class Jobs {
     );
 
     // Use the type to decide which job to create.
-    if (type == 'github-release') {
+    final githubTypes = [
+      'github-release',
+      'gr',
+    ];
+    if (githubTypes.contains(type)) {
       return GithubReleaseJob(
         baseConfig: baseConfig,
         owner: map.required('owner'),

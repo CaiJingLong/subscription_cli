@@ -1,0 +1,15 @@
+config:
+  proxy:
+    host: localhost
+    port: 7890
+  githubToken: ${GITHUB_TOKEN}
+
+jobs:
+  - name: Hello
+    type: github-release
+    owner: Caijinglong
+    repo: m3u8_download
+    params:
+      platform: macos
+    asset: "#{platform}_#{version}.tar.gz"
+    
