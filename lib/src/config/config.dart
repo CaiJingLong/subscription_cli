@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:subscription_cli/src/util/env_util.dart';
 import 'package:yaml/yaml.dart';
 
 import '../util/buffer.dart';
@@ -11,6 +12,7 @@ class Context {
     required this.basePath,
     required this.proxy,
     required this.yamlDocument,
+    this.githubToken,
   });
 
   /// The original yaml document.
@@ -21,6 +23,8 @@ class Context {
 
   /// Current proxy
   final Proxy? proxy;
+
+  final String? githubToken;
 
   String get workingDirectory => Directory.current.path;
 
@@ -37,6 +41,12 @@ class Context {
       buffer.writeln('proxy is not defined.');
     } else {
       buffer.writeMultiLine(proxy?.analyze(), indent: 2);
+    }
+
+    if (githubToken == null) {
+      buffer.writeln('githubToken is not defined.');
+    } else {
+      buffer.writeln('githubToken: ${githubToken!.substring(0, 4)}****');
     }
 
     return buffer.toString();
@@ -136,6 +146,8 @@ class Config {
   final List<Jobs> jobs;
 
   factory Config.fromYamlText(String yamlText) {
+    yamlText = EnvUtil.replaceEnv(yamlText);
+
     final YamlDocument doc = loadYamlDocument(yamlText);
 
     final Map? globalConfigMap = doc.contents.value['config'];
@@ -145,6 +157,7 @@ class Config {
       yamlDocument: doc,
       basePath: globalConfigMap?['basePath'],
       proxy: Proxy.byMap(proxyMap),
+      githubToken: globalConfigMap?['githubToken'],
     );
 
     final List? jobsList = doc.contents.value?['jobs'];

@@ -22,6 +22,9 @@ class GithubReleaseJob extends Jobs {
     buffer.writeln('repo: $repo');
     buffer.writeln('includePrerelease: $includePrerelease');
 
+    final url = 'https://api.github.com/repos/$owner/$repo/releases';
+    buffer.writeln('release api url: $url');
+
     return buffer.toString();
   }
 }

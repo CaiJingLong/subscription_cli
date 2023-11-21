@@ -7,7 +7,7 @@ on:
     paths:
       - lib/**.dart
       - bin/**.dart
-      - .github/workflows/auto-format-code.yaml
+      - .github/workflows/auto-pr-code.yaml
 
 jobs:
   check-code:
@@ -23,6 +23,10 @@ jobs:
         with:
           cache: true
           channel: stable
+      - name: Generate index dart
+        run: |
+          flutter pub global activate index_generator
+          flutter pub global run index_generator:index_generator
       - name: Format code
         run: |
           dart format lib/
