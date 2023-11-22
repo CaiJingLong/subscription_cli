@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "$comment": "How to use this schema:",
+  "properties": {
+    "config": {
+      "type": ["object", "null"],
+      "$comment": "公用的配置文件",
+      "description": "The global config for all jobs.",
+      "properties": {
+        "proxy": {
+          "type": "object",
+          "description": "The proxy config for all jobs.",
+          "properties": {
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            }
+          },
+          "required": ["host", "port"]
+        },
+        "githubToken": {
+          "type": "string",
+          "description": "Using for github api/release and others."
+        },
+        "basePath": {
+          "type": "string",
+          "description": "The base path for all jobs."
+        }
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "description": "The jobs to run.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["github-release", "gr", "http"]
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "If the job is enabled."
+          },
+          "overwrite": {
+            "type": "boolean",
+            "default": false,
+            "description": "If the job is overwrite."
+          },
+          "output": {
+            "type": "string",
+            "default": ".",
+            "description": "The output path for the job. A relative path or absolute path."
+          },
+          "owner": {
+            "type": "string",
+            "description": "If the type is github-release, the owner is required."
+          },
+          "repo": {
+            "type": "string",
+            "description": "If the type is github-release, the repo is required."
+          },
+          "params": {
+            "type": "object",
+            "description": "The params for the job."
+          },
+          "asset": {
+            "type": "string",
+            "description": "The name of github release."
+          },
+          "url": {
+            "type": "string",
+            "description": "The url for the job."
+          },
+          "post": {
+            "type": ["object", "null"],
+            "$comment": "下载任务结束后，如何操作资源",
+            "description": "",
+            "properties": {
+              "input": {
+                "type": ["string", "null"]
+              }
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "properties": {
+              "type": {
+                "enum": ["github-release", "gr"]
+              }
+            },
+            "required": ["owner", "repo", "asset"]
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["http"]
+              }
+            },
+            "required": ["url"]
+          }
+        ],
+        "required": ["name", "type"]
+      }
+    }
+  },
+  "required": ["jobs"]
+}
