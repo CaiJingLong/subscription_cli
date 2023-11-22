@@ -1,4 +1,4 @@
-name: Auto delete branch after PR is closed.
+name: Auto delete branch after PR is closed
 
 on:
   pull_request:
