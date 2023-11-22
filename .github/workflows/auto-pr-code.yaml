@@ -53,4 +53,7 @@ jobs:
           labels: "auto-format"
       - name: Auto merge PR
         run: |
+          # wait for the PR to be created
+          echo "Waiting for PR to be created"
+          sleep 3
           gh pr list --state open --label auto-format --json number | jq -r '.[].number' | xargs -I {} gh pr merge {} --squash
