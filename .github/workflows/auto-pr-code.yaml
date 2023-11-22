@@ -53,4 +53,4 @@ jobs:
           labels: "auto-format"
       - name: Auto merge PR
         run: |
-          gh pr list --state open --label auto-format --json number | jq -r '.[].number' | xargs -I {} gh pr merge {}
+          gh pr list --state open --label auto-format --json number | jq -r '.[].number' | xargs -I {} gh pr merge {} --squash
