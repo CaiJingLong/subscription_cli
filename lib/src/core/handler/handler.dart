@@ -88,6 +88,33 @@ class PostHandler {
     changeFileMode(file, mode);
   }
 
+  void copyDirToDisk(Job job, Directory dir, String outputPath) {
+    final outputDir = Directory(outputPath);
+    if (outputDir.existsSync() && !job.baseConfig.overwrite) {
+      logger.log('The directory $outputPath is already exists, skip.');
+      return;
+    }
+
+    // copy dir recursively
+    void copyDir(Directory dir, String outputPath) {
+      Directory(outputPath).createSync(recursive: true);
+
+      final files = dir.listSync();
+      for (final fileEntry in files) {
+        final file = fileEntry;
+        final name = basename(file.path);
+        final newPath = join(outputPath, name);
+        if (file is File) {
+          file.copySync(newPath);
+        } else if (file is Directory) {
+          copyDir(file, newPath);
+        }
+      }
+    }
+
+    copyDir(dir, outputPath);
+  }
+
   Future<void> handleAfterDownload(
     Job job,
     Config config,
@@ -101,8 +128,9 @@ class PostHandler {
 
     logger.debug('extract file to $tmpOutputPath.');
 
-    final input = join(tmpOutputPath, job.baseConfig.postSrc ?? '.');
-    final output = join(job.outputPath, job.baseConfig.postTarget ?? '.');
+    final input = normalize(join(tmpOutputPath, job.baseConfig.postSrc ?? '.'));
+    final output =
+        normalize(join(job.outputPath, job.baseConfig.postTarget ?? '.'));
 
     logger.log('input: $input');
     logger.log('output: $output');
@@ -139,7 +167,13 @@ class PostHandler {
       final dir = Directory(input);
 
       if (outputType == FileSystemEntityType.notFound) {
-        dir.renameSync(output);
+        final outputParentPath = File(output).parent.path;
+        if (!Directory(outputParentPath).existsSync()) {
+          Directory(outputParentPath).createSync(recursive: true);
+        }
+        logger.debug('The input: $input');
+        logger.debug('The output: $output');
+        copyDirToDisk(job, dir, output);
         return;
       }
 
