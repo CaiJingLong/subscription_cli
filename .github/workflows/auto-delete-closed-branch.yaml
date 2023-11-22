@@ -15,6 +15,6 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Delete branch
-        if: github.event.pull_request.merged == false
+        if: github.event.pull_request.merged == false && github.event.pull_request.head.repo.full_name == github.repository
         run: |
           gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ github.head_ref }}"
