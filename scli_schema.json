@@ -13,10 +13,12 @@
           "description": "The proxy config for all jobs.",
           "properties": {
             "host": {
-              "type": "string"
+              "type": "string",
+              "description": "The host of the proxy."
             },
             "port": {
-              "type": "integer"
+              "type": "integer",
+              "description": "The port of the proxy."
             }
           },
           "required": ["host", "port"]
@@ -38,10 +40,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The name of the job."
           },
           "type": {
             "type": "string",
+            "description": "The type of the job.",
             "enum": ["github-release", "gr", "http"]
           },
           "enabled": {
@@ -82,7 +86,7 @@
           "post": {
             "type": ["object", "null"],
             "$comment": "下载任务结束后，如何操作资源",
-            "description": "",
+            "description": "How to use the downloaded resource.",
             "properties": {
               "input": {
                 "type": ["string", "null"]
