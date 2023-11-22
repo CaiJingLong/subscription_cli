@@ -247,7 +247,7 @@ class Config with Mappable {
 }
 
 /// Base config of job
-class BaseConfig {
+class BaseConfig with Mappable {
   /// The base config of job
   const BaseConfig({
     required this.context,
@@ -326,4 +326,31 @@ class BaseConfig {
   ///
   /// Define in the node of `jobs.workingDir`.
   final String? workingDirectory;
+
+  String? get postSrc {
+    return map['post']?['src'];
+  }
+
+  String? get postTarget {
+    return map['post']?['target'];
+  }
+
+  String? get postMode {
+    return map['post']?['mode'];
+  }
+
+  @override
+  Map toMap() {
+    return {
+      'type': type,
+      'name': name,
+      'description': description,
+      'enabled': enabled,
+      'overwrite': overwrite,
+      'output': output,
+      'workingDir': workingDirectory,
+      'params': map['params'],
+      'post': map['post'],
+    };
+  }
 }

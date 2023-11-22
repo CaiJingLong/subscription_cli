@@ -88,8 +88,19 @@
             "$comment": "下载任务结束后，如何操作资源",
             "description": "How to use the downloaded resource.",
             "properties": {
-              "input": {
-                "type": ["string", "null"]
+              "src": {
+                "type": ["string", "null"],
+                "description": "The relative path of the downloaded resource after extracted."
+              },
+              "target": {
+                "type": ["string", "null"],
+                "description": "The output path, support absolute path and relative path."
+              },
+              "mode": {
+                "type": ["string", "null"],
+                "description": "The mode of the target file.",
+                "default": "0755",
+                "examples": ["0755", "0644"]
               }
             }
           }

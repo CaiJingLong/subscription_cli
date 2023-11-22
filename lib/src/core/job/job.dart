@@ -131,14 +131,7 @@ abstract class Job with JobMixin, Mappable {
   @override
   Map toMap() {
     return {
-      'type': type,
-      'name': name,
-      'description': description,
-      'enabled': enabled,
-      'overwrite': overwrite,
-      'output': outputPath,
-      'workingDir': baseConfig.workingDirectory,
-      'params': params,
+      ...baseConfig.toMap(),
       ...configMap(),
     };
   }
