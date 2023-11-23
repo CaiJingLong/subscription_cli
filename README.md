@@ -30,6 +30,22 @@ The config section is the global config.
 
 Every config item in this section will be used in every job.
 
+#### Config for vscode
+
+Support use yaml schema to help you write config file in vscode.
+
+Install the [yaml schema](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) plugin.
+
+Add the schema in your workspace setting.
+
+```json
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/CaiJingLong/subscription_cli/main/scli_schema.json": "scli.yaml"
+  }
+}
+```
+
 #### githubToken
 
 The github token for github api.
