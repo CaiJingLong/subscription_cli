@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:subscription_cli/src/core/config.dart';
 import 'package:subscription_cli/src/core/job/job.dart';
 import 'package:archive/archive_io.dart';
+import 'package:subscription_cli/src/util/file_util.dart';
 import 'package:subscription_cli/src/util/log.dart';
 
 import 'dmg.dart';
@@ -116,8 +117,7 @@ class PostHandler {
   ) async {
     logger.log('prepare to extract file to disk.');
 
-    final dt = DateTime.now().millisecondsSinceEpoch;
-    final tmpOutputPath = join(Directory.systemTemp.path, '$dt');
+    final tmpOutputPath = join(job.getTempPath(), 'tmp-output');
 
     _tempFiles.add(Directory(tmpOutputPath));
     await _prepareHandle(file, tmpOutputPath);

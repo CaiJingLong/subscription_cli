@@ -6,6 +6,7 @@ import 'package:subscription_cli/src/core/handler/handler.dart';
 import 'package:subscription_cli/src/core/mappable.dart';
 import 'package:subscription_cli/src/util/buffer.dart';
 import 'package:path/path.dart' as path;
+import 'package:subscription_cli/src/util/file_util.dart';
 
 import 'github_release.dart';
 
@@ -20,6 +21,7 @@ abstract class Job with JobMixin, Mappable {
     required Context context,
     required int index,
     required Map map,
+    required DateTime datetime,
   }) {
     final proxy = Proxy.byMap(map['proxy']);
     final globalProxy = context.proxy;
@@ -43,6 +45,7 @@ abstract class Job with JobMixin, Mappable {
       proxy: mergedProxy,
       map: map,
       type: type,
+      datetime: datetime,
       enabled: map['enabled'] ?? true,
       overwrite: map['overwrite'] ?? false,
       name: map.required('name'),
@@ -129,9 +132,14 @@ abstract class Job with JobMixin, Mappable {
 
   String? analyze();
 
+  String getTempPath() {
+    final dt = baseConfig.datetime.millisecondsSinceEpoch;
+    return path.join(FileUtils.getTempPath(), '$dt-$name');
+  }
+
   Future<void> run(Config config) async {
     final file = await doDownload(config);
-    PostHandler().handleAfterDownload(this, config, file);
+    await PostHandler().handleAfterDownload(this, config, file);
   }
 
   Future<File> doDownload(Config config);

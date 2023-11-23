@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:path/path.dart' as path;
+import 'package:path/path.dart';
+import 'package:subscription_cli/src/util/file_util.dart';
 
 import 'package:subscription_cli/subscription_cli.dart';
 
@@ -88,12 +90,14 @@ class GithubReleaseJob extends Job {
 
     logger.log('download url: $downloadUrl');
 
-    final tmpDir = Directory.systemTemp.createTempSync();
+    final tmpDir = Directory(join(getTempPath(), 'download'));
     final outputFile = File(path.join(tmpDir.path, needAssetName));
 
     if (outputFile.existsSync()) {
       logger.log('Target file exists, delete it.');
       outputFile.deleteSync();
+    } else {
+      outputFile.parent.createSync(recursive: true);
     }
 
     logger.log('output file: ${outputFile.path}');

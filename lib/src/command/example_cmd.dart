@@ -26,6 +26,8 @@ class ExampleCommand extends BaseCommond {
     );
     final baseConfig = BaseConfig(
       context: context,
+      datetime: DateTime.now(),
+      description: 'Download m3u8 files from github release.',
       proxy: null,
       map: {},
       type: 'github-release',

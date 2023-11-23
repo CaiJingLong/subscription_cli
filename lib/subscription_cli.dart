@@ -14,5 +14,6 @@ export 'src/core/mappable.dart';
 export 'src/defs.dart';
 export 'src/util/buffer.dart';
 export 'src/util/env_util.dart';
+export 'src/util/file_util.dart';
 export 'src/util/http.dart';
 export 'src/util/log.dart';

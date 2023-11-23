@@ -186,6 +186,8 @@ class Config with Mappable {
 
     final List<Job> jobs = [];
 
+    final datetime = DateTime.now();
+
     for (var i = 0; i < jobsList.length; i++) {
       final job = jobsList[i];
       try {
@@ -193,6 +195,7 @@ class Config with Mappable {
           Job.byMap(
             context: context,
             index: i,
+            datetime: datetime,
             map: job,
           ),
         );
@@ -266,10 +269,16 @@ class BaseConfig with Mappable {
     required this.enabled,
     required this.overwrite,
     required this.name,
+    required this.datetime,
     this.description,
     this.output,
     this.workingDirectory,
   });
+
+  /// The create time of job config.
+  ///
+  /// It will be set when the job is created.
+  final DateTime datetime;
 
   /// The global config of job, it comes from config.yaml.
   /// Define in the node of `config`.
