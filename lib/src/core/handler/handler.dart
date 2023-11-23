@@ -85,7 +85,7 @@ class PostHandler {
 
     final mode = job.baseConfig.postMode;
 
-    changeFileMode(file, mode);
+    changeFileMode(outputFile, mode);
   }
 
   void copyDirToDisk(Job job, Directory dir, String outputPath) {
