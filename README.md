@@ -1,7 +1,5 @@
 # A cli for subscribing some release resources
 
-Developing...
-
 ## About config file
 
 The config file is yaml file, and
@@ -122,3 +120,7 @@ inner variable params:
 | param name | description |
 | --- | --- |
 | version | the name of release |
+
+#### http job
+
+Developing...
