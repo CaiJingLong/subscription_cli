@@ -6,60 +6,46 @@ import 'package:subscription_cli/src/core/job/job.dart';
 import 'package:archive/archive_io.dart';
 import 'package:subscription_cli/src/util/log.dart';
 
+import 'dmg.dart';
+
 /// Handler for after download.
 class PostHandler {
-  Archive createArchive(File file) {
-    final path = file.path;
+  final List<FileSystemEntity> _tempFiles = [];
 
-    final inputStream = InputFileStream(path);
-
-    // tar.gz or tgz
-    if (path.endsWith('.tar.gz') || path.endsWith('.tgz')) {
-      final GZipDecoder gzipDecoder = GZipDecoder();
-      final bytes = gzipDecoder.decodeBuffer(inputStream);
-      final TarDecoder tarDecoder = TarDecoder();
-      return tarDecoder.decodeBytes(bytes);
+  Future<void> _prepareHandle(File file, String tmpOutputPath) async {
+    // check file is dmg
+    if (file.path.endsWith('.dmg')) {
+      if (!Platform.isMacOS) {
+        throw Exception('The file is dmg, but the platform is not macOS.');
+      }
+      DmgHelper(
+        dmgFile: file,
+        mountPoint: tmpOutputPath,
+      ).mount();
+      return;
     }
 
-    // tar
-    if (path.endsWith('.tar')) {
-      return TarDecoder().decodeBuffer(inputStream);
-    }
-
-    // zip
-    if (path.endsWith('.zip')) {
-      return ZipDecoder().decodeBuffer(inputStream);
-    }
-
-    // bz
-    if (path.endsWith('.tar.bz') || path.endsWith('.tbz')) {
-      final BZip2Decoder bZip2Decoder = BZip2Decoder();
-      final bytes = bZip2Decoder.decodeBuffer(inputStream);
-      final TarDecoder tarDecoder = TarDecoder();
-      return tarDecoder.decodeBytes(bytes);
-    }
-
-    // xz
-    if (path.endsWith('.tar.xz') || path.endsWith('.txz')) {
-      final XZDecoder xzDecoder = XZDecoder();
-      final bytes = xzDecoder.decodeBuffer(inputStream);
-      final TarDecoder tarDecoder = TarDecoder();
-      return tarDecoder.decodeBytes(bytes);
-    }
-
-    // zlib
-    if (path.endsWith('.tar.z') || path.endsWith('.tz')) {
-      final InputStream stream = InputStream(file.readAsBytesSync());
-      final ZLibDecoder zlibDecoder = ZLibDecoder();
-      final bytes = zlibDecoder.decodeBuffer(stream);
-      final TarDecoder tarDecoder = TarDecoder();
-      return tarDecoder.decodeBytes(bytes);
-    }
-
-    throw ArgumentError('Unsupported archive type.');
+    await extractFileToDisk(file.path, tmpOutputPath);
+    logger.debug('extract file to $tmpOutputPath.');
+    _tempFiles.add(Directory(tmpOutputPath));
   }
 
-  void changeFileMode(File file, String? mode) {
+  Future<void> _afterHandle(Job job, Config config, File file) async {
+    if (file.path.endsWith('.dmg')) {
+      DmgHelper(
+        dmgFile: file,
+        mountPoint: job.outputPath,
+      ).unmount();
+    }
+
+    for (final file in _tempFiles) {
+      if (file.existsSync()) {
+        file.deleteSync(recursive: true);
+      }
+    }
+  }
+
+  void _changeFileMode(File file, String? mode) {
     if (mode == null) {
       return;
     }
@@ -74,7 +60,7 @@ class PostHandler {
     }
   }
 
-  void copyFileToDisk(Job job, File file, String outputPath) {
+  void _copyFileToDisk(Job job, File file, String outputPath) {
     final outputFile = File(outputPath);
     if (outputFile.existsSync() && !job.baseConfig.overwrite) {
       logger.log('The file $outputPath is already exists, skip.');
@@ -86,10 +72,10 @@ class PostHandler {
 
     final mode = job.baseConfig.postMode;
 
-    changeFileMode(outputFile, mode);
+    _changeFileMode(outputFile, mode);
   }
 
-  void copyDirToDisk(Job job, Directory dir, String outputPath) {
+  void _copyDirToDisk(Job job, Directory dir, String outputPath) {
     final outputDir = Directory(outputPath);
     if (outputDir.existsSync() && !job.baseConfig.overwrite) {
       logger.log('The directory $outputPath is already exists, skip.');
@@ -125,75 +111,80 @@ class PostHandler {
 
     final dt = DateTime.now().millisecondsSinceEpoch;
     final tmpOutputPath = join(Directory.systemTemp.path, '$dt');
-    await extractFileToDisk(file.path, tmpOutputPath);
 
-    logger.debug('extract file to $tmpOutputPath.');
+    _tempFiles.add(Directory(tmpOutputPath));
+    await _prepareHandle(file, tmpOutputPath);
 
-    final input = normalize(join(tmpOutputPath, job.baseConfig.postSrc ?? '.'));
-    final output =
-        normalize(join(job.outputPath, job.baseConfig.postTarget ?? '.'));
+    try {
+      final input =
+          normalize(join(tmpOutputPath, job.baseConfig.postSrc ?? '.'));
+      final output =
+          normalize(join(job.outputPath, job.baseConfig.postTarget ?? '.'));
 
-    logger.log('input: $input');
-    logger.log('output: $output');
+      logger.log('input: $input');
+      logger.log('output: $output');
 
-    final type = FileSystemEntity.typeSync(input);
+      final type = FileSystemEntity.typeSync(input);
 
-    if (type == FileSystemEntityType.notFound) {
-      throw ArgumentError('The input path is not found.');
-    }
-
-    final outputType = FileSystemEntity.typeSync(output);
-
-    if (type == FileSystemEntityType.file) {
-      final file = File(input);
-
-      if (outputType == FileSystemEntityType.notFound) {
-        copyFileToDisk(job, file, output);
-        return;
+      if (type == FileSystemEntityType.notFound) {
+        throw ArgumentError('The input path is not found.');
       }
 
-      if (outputType == FileSystemEntityType.directory) {
-        final name = basename(input);
-        final newPath = join(output, name);
-        copyFileToDisk(job, file, newPath);
-      } else {
-        file.copySync(output);
-        copyFileToDisk(job, file, output);
-      }
+      final outputType = FileSystemEntity.typeSync(output);
 
-      return;
-    }
+      if (type == FileSystemEntityType.file) {
+        final file = File(input);
 
-    if (type == FileSystemEntityType.directory) {
-      final dir = Directory(input);
-
-      if (outputType == FileSystemEntityType.notFound) {
-        final outputParentPath = File(output).parent.path;
-        if (!Directory(outputParentPath).existsSync()) {
-          Directory(outputParentPath).createSync(recursive: true);
+        if (outputType == FileSystemEntityType.notFound) {
+          _copyFileToDisk(job, file, output);
+          return;
         }
-        logger.debug('The input: $input');
-        logger.debug('The output: $output');
-        copyDirToDisk(job, dir, output);
+
+        if (outputType == FileSystemEntityType.directory) {
+          final name = basename(input);
+          final newPath = join(output, name);
+          _copyFileToDisk(job, file, newPath);
+        } else {
+          file.copySync(output);
+          _copyFileToDisk(job, file, output);
+        }
+
         return;
       }
 
-      if (outputType == FileSystemEntityType.directory) {
-        logger.debug('The input: $input');
-        logger.debug('The inputType: $type');
+      if (type == FileSystemEntityType.directory) {
+        final dir = Directory(input);
 
-        logger.debug('The output: $output');
-        logger.debug('The outputType: $outputType');
-        throw ArgumentError(
-            'The output path is a directory, and source path is a directory, cannot overwrite.');
-      } else if (outputType == FileSystemEntityType.file) {
-        throw ArgumentError(
-            'The output path is a file, and source path is a directory, cannot overwrite.');
-      } else {
-        logger.log('The target path is found, and the type is $outputType');
+        if (outputType == FileSystemEntityType.notFound) {
+          final outputParentPath = File(output).parent.path;
+          if (!Directory(outputParentPath).existsSync()) {
+            Directory(outputParentPath).createSync(recursive: true);
+          }
+          logger.debug('The input: $input');
+          logger.debug('The output: $output');
+          _copyDirToDisk(job, dir, output);
+          return;
+        }
+
+        if (outputType == FileSystemEntityType.directory) {
+          logger.debug('The input: $input');
+          logger.debug('The inputType: $type');
+
+          logger.debug('The output: $output');
+          logger.debug('The outputType: $outputType');
+          throw ArgumentError(
+              'The output path is a directory, and source path is a directory, cannot overwrite.');
+        } else if (outputType == FileSystemEntityType.file) {
+          throw ArgumentError(
+              'The output path is a file, and source path is a directory, cannot overwrite.');
+        } else {
+          logger.log('The target path is found, and the type is $outputType');
+        }
+
+        return;
       }
-
-      return;
+    } finally {
+      await _afterHandle(job, config, file);
     }
   }
 }

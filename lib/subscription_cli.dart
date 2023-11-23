@@ -5,6 +5,7 @@ library subscription_cli;
 export 'src/cli.dart';
 export 'src/core/cli_config.dart';
 export 'src/core/config.dart';
+export 'src/core/handler/dmg.dart';
 export 'src/core/handler/handler.dart';
 export 'src/core/job/github_release.dart';
 export 'src/core/job/http.dart';
