@@ -122,64 +122,75 @@ class PostHandler {
     await _prepareHandle(file, tmpOutputPath);
 
     try {
-      final input =
+      final inputPath =
           normalize(join(tmpOutputPath, job.baseConfig.postSrc ?? '.'));
-      final output =
+      final outputPath =
           normalize(join(job.outputPath, job.baseConfig.postTarget ?? '.'));
 
-      logger.log('input: $input');
-      logger.log('output: $output');
+      logger.log('input: $inputPath');
+      logger.log('output: $outputPath');
 
-      final type = FileSystemEntity.typeSync(input);
+      final type = FileSystemEntity.typeSync(inputPath);
 
       if (type == FileSystemEntityType.notFound) {
         throw ArgumentError('The input path is not found.');
       }
 
-      final outputType = FileSystemEntity.typeSync(output);
+      final outputType = FileSystemEntity.typeSync(outputPath);
 
       if (type == FileSystemEntityType.file) {
-        final file = File(input);
+        final file = File(inputPath);
 
         if (outputType == FileSystemEntityType.notFound) {
-          _copyFileToDisk(job, file, output);
+          _copyFileToDisk(job, file, outputPath);
           return;
         }
 
         if (outputType == FileSystemEntityType.directory) {
-          final name = basename(input);
-          final newPath = join(output, name);
+          final name = basename(inputPath);
+          final newPath = join(outputPath, name);
           _copyFileToDisk(job, file, newPath);
         } else {
-          file.copySync(output);
-          _copyFileToDisk(job, file, output);
+          file.copySync(outputPath);
+          _copyFileToDisk(job, file, outputPath);
         }
 
         return;
       }
 
       if (type == FileSystemEntityType.directory) {
-        final dir = Directory(input);
+        final inputDir = Directory(inputPath);
 
         if (outputType == FileSystemEntityType.notFound) {
-          final outputParentPath = File(output).parent.path;
+          final outputParentPath = File(outputPath).parent.path;
           if (!Directory(outputParentPath).existsSync()) {
             Directory(outputParentPath).createSync(recursive: true);
           }
-          logger.debug('The input: $input');
-          logger.debug('The output: $output');
-          _copyDirToDisk(job, dir, output);
+          logger.debug('The input: $inputPath');
+          logger.debug('The output: $outputPath');
+          _copyDirToDisk(job, inputDir, outputPath);
           return;
         }
 
         if (outputType == FileSystemEntityType.directory) {
-          logger.debug('The input: $input');
+          logger.debug('The input: $inputPath');
           logger.debug('The inputType: $type');
 
-          logger.debug('The output: $output');
+          logger.debug('The output: $outputPath');
           logger.debug('The outputType: $outputType');
-          throw ArgumentError(
-              'The output path is a directory, and source path is a directory, cannot overwrite.');
+          // throw ArgumentError(
+          //     'The output path is a directory, and source path is a directory, cannot overwrite.');
+
+          // check target dir is empty
+          final files = inputDir.listSync();
+          if (files.isNotEmpty && !job.baseConfig.overwrite) {
+            throw ArgumentError(
+                'The output path is a directory, and source path is a directory, cannot overwrite.');
+          }
+
+          // overwrite
+          _copyDirToDisk(job, inputDir, outputPath);
+          
         } else if (outputType == FileSystemEntityType.file) {
           throw ArgumentError(
               'The output path is a file, and source path is a directory, cannot overwrite.');

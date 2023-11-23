@@ -35,3 +35,7 @@ jobs:
     asset: 'mac*'
     url: https://github.com/CaiJingLong/subscription_cli
     output: ./output/scli
+    post:
+      mode: +x
+      target: scli
+    overwrite: true
