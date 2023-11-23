@@ -61,7 +61,7 @@
           "output": {
             "type": "string",
             "default": ".",
-            "description": "The output path for the job. A relative path or absolute path."
+            "description": "The output dir path for the job. A relative path with work dir or absolute path."
           },
           "owner": {
             "type": "string",

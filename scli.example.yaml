@@ -30,6 +30,8 @@ jobs:
       src: Kap.app
       target: /Applications/Kap.app
     overwrite: true
-  - name: http
-    type: http
-    url: http://
+  - name: scli
+    type: github-release
+    asset: 'mac*'
+    url: https://github.com/CaiJingLong/subscription_cli
+    output: ./output/scli
