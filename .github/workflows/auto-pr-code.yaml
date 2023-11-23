@@ -29,6 +29,8 @@ jobs:
         run: |
           flutter pub global activate index_generator
           flutter pub global run index_generator:index_generator
+      - name: "Make or update dart version file"
+        run: python3 .github/workflows/auto_upgrade_version.py
       - name: Format code
         run: |
           dart format lib/
