@@ -1,5 +1,5 @@
 name: subscription_cli
-description: A sample command-line application.
+description: Help you to manage your subscription, such as upgrade some package/app to the latest version.
 version: 0.1.0
 repository: https://github.com/CaiJingLong/subscription_cli.git
 
