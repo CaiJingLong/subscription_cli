@@ -48,12 +48,13 @@ class PostHandler {
     }
 
     // zlib
-    // if (path.endsWith('.tar.z') || path.endsWith('.tz')) {
-    //   final ZLibDecoder zlibDecoder = ZLibDecoder();
-    //   final bytes = zlibDecoder.decodeBuffer(inputStream);
-    //   final TarDecoder tarDecoder = TarDecoder();
-    //   return tarDecoder.decodeBytes(bytes);
-    // }
+    if (path.endsWith('.tar.z') || path.endsWith('.tz')) {
+      final InputStream stream = InputStream(file.readAsBytesSync());
+      final ZLibDecoder zlibDecoder = ZLibDecoder();
+      final bytes = zlibDecoder.decodeBuffer(stream);
+      final TarDecoder tarDecoder = TarDecoder();
+      return tarDecoder.decodeBytes(bytes);
+    }
 
     throw ArgumentError('Unsupported archive type.');
   }
