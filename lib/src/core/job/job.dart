@@ -18,7 +18,8 @@ abstract class Job with JobMixin, Mappable {
   /// Create a job by [map].
   factory Job.byMap({
     required Context context,
-    required Map map,
+    required int index,
+    required Map map, 
   }) {
     final proxy = Proxy.byMap(map['proxy']);
     final globalProxy = context.proxy;
@@ -56,10 +57,26 @@ abstract class Job with JobMixin, Mappable {
       'gr',
     ];
     if (githubTypes.contains(type)) {
+      String? owner = map.optional('owner');
+      String? repo = map.optional('repo');
+
+      if (owner == null || repo == null) {
+        final regex = RegExp(r'github\.com/([^/]+)/([^/]+)');
+        final url = map.optional('url');
+        final match = regex.firstMatch(url);
+        if (match != null) {
+          owner = match.group(1);
+          repo = match.group(2);
+        } else {
+          throw ArgumentError('The owner and repo of github-release job is required, '
+              'please set owner/repo or url.');
+        }
+      }
+
       return GithubReleaseJob(
         baseConfig: baseConfig,
-        owner: map.required('owner'),
-        repo: map.required('repo'),
+        owner: owner!,
+        repo: repo!,
         asset: map.required('asset'),
         includePrerelease: map['includePrerelease'] ?? false,
       );
@@ -147,6 +164,10 @@ extension _JobsMap on Map {
           'but it is not defined.');
     }
     return value;
+  }
+
+  dynamic optional(String key) {
+    return this[key];
   }
 }
 

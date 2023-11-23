@@ -83,8 +83,13 @@
           "url": {
             "type": "string",
             "pattern": "^https?://",
-            "examples": ["https://example.org/file.zip", "http"],
-            "description": "The url for the job."
+            "examples": [
+              "http://",
+              "https://",
+              "https://example.org/file.zip",
+              "https://github.com/owner/repo"
+            ],
+            "description": "The url for the job. If the type is github-release, the url is repo url."
           },
           "post": {
             "type": ["object", "null"],
@@ -116,6 +121,14 @@
               }
             },
             "required": ["owner", "repo", "asset"]
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["github-release", "gr"]
+              }
+            },
+            "required": ["url", "asset"]
           },
           {
             "properties": {

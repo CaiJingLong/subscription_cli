@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:subscription_cli/src/util/env_util.dart';
+import 'package:subscription_cli/src/util/log.dart';
 import 'package:yaml/yaml.dart';
 
 import '../util/buffer.dart';
@@ -181,17 +182,25 @@ class Config with Mappable {
       githubToken: globalConfigMap?['githubToken'],
     );
 
-    final List? jobsList = doc.contents.value?['jobs'];
+    final List jobsList = doc.contents.value?['jobs'] ?? [];
 
     final List<Job> jobs = [];
 
-    for (final job in jobsList ?? []) {
-      jobs.add(
-        Job.byMap(
-          context: context,
-          map: job,
-        ),
-      );
+    for (var i = 0; i < jobsList.length; i++) {
+      final job = jobsList[i];
+      try {
+        jobs.add(
+          Job.byMap(
+            context: context,
+            index: i,
+            map: job,
+          ),
+        );
+      } catch (e) {
+        logger.log('The ${i + 1} job happen error:');
+        logger.write('  ');
+        rethrow;
+      }
     }
 
     return Config(

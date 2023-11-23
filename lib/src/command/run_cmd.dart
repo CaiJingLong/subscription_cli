@@ -17,12 +17,26 @@ class RunCommand extends BaseCommond {
   Future<void> runCommand(argResults) async {
     final config = readConfig();
 
-    for (final job in config.jobs) {
+    final jobs = config.jobs;
+    logger.log('Start to run jobs, total ${jobs.length} jobs.');
+
+    for (var i = 0; i < config.jobs.length; i++) {
+      final job = config.jobs[i];
+
+      logger.write('=' * 30);
+      logger.write(' Job ${i + 1} of ${jobs.length}: ${job.name} ');
+      logger.write('=' * 30);
+      logger.write('\n');
+
       if (job.enabled == false) {
         logger.log('Job ${job.name} is disabled. Skip it.');
+        logger.log('=' * 60);
         continue;
       }
       await job.run(config);
+
+      logger.log('=' * 60);
+      logger.write('\n');
     }
   }
 }
