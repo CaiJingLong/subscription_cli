@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 import 'package:subscription_cli/src/core/config.dart';
 import 'package:subscription_cli/src/core/job/job.dart';
 import 'package:archive/archive_io.dart';
-import 'package:subscription_cli/src/util/file_util.dart';
 import 'package:subscription_cli/src/util/log.dart';
 
 import 'dmg.dart';

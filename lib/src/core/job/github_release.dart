@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:path/path.dart' as path;
 import 'package:path/path.dart';
-import 'package:subscription_cli/src/util/file_util.dart';
 
 import 'package:subscription_cli/subscription_cli.dart';
 
