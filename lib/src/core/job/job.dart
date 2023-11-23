@@ -19,7 +19,7 @@ abstract class Job with JobMixin, Mappable {
   factory Job.byMap({
     required Context context,
     required int index,
-    required Map map, 
+    required Map map,
   }) {
     final proxy = Proxy.byMap(map['proxy']);
     final globalProxy = context.proxy;
@@ -68,7 +68,8 @@ abstract class Job with JobMixin, Mappable {
           owner = match.group(1);
           repo = match.group(2);
         } else {
-          throw ArgumentError('The owner and repo of github-release job is required, '
+          throw ArgumentError(
+              'The owner and repo of github-release job is required, '
               'please set owner/repo or url.');
         }
       }
