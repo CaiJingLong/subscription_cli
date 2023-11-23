@@ -100,7 +100,7 @@
                 "type": ["string", "null"],
                 "description": "The mode of the target file.",
                 "default": "0755",
-                "examples": ["0755", "0644"]
+                "examples": ["0755", "0644", "0777", "0666"]
               }
             }
           }
