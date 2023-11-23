@@ -77,10 +77,13 @@
           },
           "asset": {
             "type": "string",
-            "description": "The name of github release."
+            "description": "The name of github release asset, support glob pattern.",
+            "examples": ["*linux*", "*mac*", "**", "*.zip", "*.tar.gz"]
           },
           "url": {
             "type": "string",
+            "pattern": "^https?://",
+            "examples": ["https://example.org/file.zip", "http"],
             "description": "The url for the job."
           },
           "post": {
@@ -99,8 +102,8 @@
               "mode": {
                 "type": ["string", "null"],
                 "description": "The mode of the target file.",
-                "default": "0755",
-                "examples": ["0755", "0644", "0777", "0666"]
+                "default": "+x",
+                "examples": ["+x", "0755", "0644", "0777", "0666"]
               }
             }
           }

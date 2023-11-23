@@ -42,7 +42,7 @@ abstract class Job with JobMixin, Mappable {
       proxy: mergedProxy,
       map: map,
       type: type,
-      enabled: map['enable'] ?? true,
+      enabled: map['enabled'] ?? true,
       overwrite: map['overwrite'] ?? false,
       name: map.required('name'),
       description: map['description'],

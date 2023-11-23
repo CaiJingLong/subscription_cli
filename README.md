@@ -83,6 +83,8 @@ You can see option table to know the variable params support or not.
 
 Some job have inner variable params.
 
+And some params support glob pattern.
+
 #### base option
 
 The job have some base option.
@@ -109,11 +111,11 @@ type: `github-release` or `gr`
 
 The job will get the github release assets.
 
-| option | type | description | required | default value | support variable params |
-| --- | --- | --- | --- | --- | --- |
-| owner | string | the github repo owner | true | | false |
-| repo | string | the github repo name | true | | false |
-| asset | string | the asset name | true | | true |
+| option | type | description | required | default value | support variable params | support glob |
+| --- | --- | --- | --- | --- | --- | --- |
+| owner | string | the github repo owner | true | | false | false |
+| repo | string | the github repo name | true | | false | false |
+| asset | string | the asset name | true | | true | true |
 
 inner variable params:
 

@@ -12,16 +12,19 @@ import 'dmg.dart';
 class PostHandler {
   final List<FileSystemEntity> _tempFiles = [];
 
+  late DmgHelper _dmgHelper;
+
   Future<void> _prepareHandle(File file, String tmpOutputPath) async {
     // check file is dmg
     if (file.path.endsWith('.dmg')) {
       if (!Platform.isMacOS) {
         throw Exception('The file is dmg, but the platform is not macOS.');
       }
-      DmgHelper(
+      _dmgHelper = DmgHelper(
         dmgFile: file,
         mountPoint: tmpOutputPath,
-      ).mount();
+      );
+      await _dmgHelper.mount();
       return;
     }
 
@@ -32,10 +35,7 @@ class PostHandler {
 
   Future<void> _afterHandle(Job job, Config config, File file) async {
     if (file.path.endsWith('.dmg')) {
-      DmgHelper(
-        dmgFile: file,
-        mountPoint: job.outputPath,
-      ).unmount();
+      await _dmgHelper.unmount();
     }
 
     for (final file in _tempFiles) {
@@ -91,6 +91,13 @@ class PostHandler {
         final file = fileEntry;
         final name = basename(file.path);
         final newPath = join(outputPath, name);
+        if (FileSystemEntity.isLinkSync(file.path)) {
+          // create link
+          final srcLink = Link(file.path);
+          final targetLink = srcLink.targetSync();
+          Link(newPath).createSync(targetLink);
+          continue;
+        }
         if (file is File) {
           file.copySync(newPath);
         } else if (file is Directory) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:glob/glob.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:subscription_cli/subscription_cli.dart';
@@ -39,9 +40,7 @@ class GithubReleaseJob extends Job {
     };
   }
 
-  @override
-  Future<File> doDownload(config) async {
-    final httpClient = HttpUtils(proxy: baseConfig.proxy);
+  Future findAsset(HttpUtils httpClient) async {
     final url = 'https://api.github.com/repos/$owner/$repo/releases';
 
     final response = await httpClient.get(url);
@@ -52,17 +51,37 @@ class GithubReleaseJob extends Job {
     final tagName = latestRelease['tag_name'];
 
     final params = makeParams(tagName);
-    final needAssetName = EnvUtil.replaceParams(this.asset, params);
+    final needAssetName = EnvUtil.replaceParams(asset, params);
 
     logger.log('need asset name: $needAssetName');
 
-    final assets = latestRelease['assets'];
+    final List assets = latestRelease['assets'];
     logger.debug('assets: ${prettyJsonFofObj(assets)}');
 
-    final asset = assets.firstWhere((element) {
-      final name = element['name'];
-      return name == needAssetName;
-    });
+    for (final asset in assets) {
+      final name = asset['name'];
+      if (name == needAssetName) {
+        return asset;
+      }
+    }
+
+    // use glob pattern
+    for (final asset in assets) {
+      final name = asset['name'];
+      if (Glob(needAssetName).matches(name)) {
+        return asset;
+      }
+    }
+
+    throw Exception('Asset not found.');
+  }
+
+  @override
+  Future<File> doDownload(config) async {
+    final httpClient = HttpUtils(proxy: baseConfig.proxy);
+    final asset = await findAsset(httpClient);
+
+    final needAssetName = asset['name'];
 
     logger.debug('asset: ${prettyJsonFofObj(asset)}');
     final String downloadUrl = asset['browser_download_url'];

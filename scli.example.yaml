@@ -1,16 +1,35 @@
 config:
+  githubToken: ${GITHUB_TOKEN}
   proxy:
     host: localhost
     port: 7890
-  githubToken: ${GITHUB_TOKEN}
 
 jobs:
-  - name: Hello
+  - name: m3u8
     type: github-release
     owner: Caijinglong
     repo: m3u8_download
+    output: "output/m3u8"
+    enabled: true
     params:
       platform: macos
     asset: "#{platform}_#{version}.tar.gz"
     post:
-      input: 
+      src: bin/m3u8_download.exe
+      target: /usr/local/bin/m3u8_download
+      mode: "0755"
+    overwrite: true
+  - name: kap
+    type: github-release
+    owner: wulkano
+    repo: Kap
+    output: "output/kap"
+    enabled: false
+    asset: "Kap-*-x64.dmg"
+    post:
+      src: Kap.app
+      target: /Applications/Kap.app
+    overwrite: true
+  - name: http
+    type: http
+    url: http://
