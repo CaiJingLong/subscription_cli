@@ -190,7 +190,6 @@ class PostHandler {
 
           // overwrite
           _copyDirToDisk(job, inputDir, outputPath);
-          
         } else if (outputType == FileSystemEntityType.file) {
           throw ArgumentError(
               'The output path is a file, and source path is a directory, cannot overwrite.');
