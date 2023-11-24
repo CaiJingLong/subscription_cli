@@ -88,6 +88,17 @@ abstract class Job with JobMixin, Mappable {
       );
     }
 
+    final httpTypes = [
+      'http',
+    ];
+
+    if (httpTypes.contains(type)) {
+      return HttpJob(
+        baseConfig: baseConfig,
+        url: map.required('url'),
+      );
+    }
+
     throw UnimplementedError('The type of job is not supported.');
   }
 
