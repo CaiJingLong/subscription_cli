@@ -10,6 +10,7 @@ export 'src/core/handler/handler.dart';
 export 'src/core/job/github_release.dart';
 export 'src/core/job/http.dart';
 export 'src/core/job/job.dart';
+export 'src/core/job/job_base_config.dart';
 export 'src/core/mappable.dart';
 export 'src/defs.dart';
 export 'src/util/buffer.dart';

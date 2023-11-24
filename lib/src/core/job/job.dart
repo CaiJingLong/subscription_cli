@@ -9,6 +9,8 @@ import 'package:path/path.dart' as path;
 import 'package:subscription_cli/src/util/file_util.dart';
 
 import 'github_release.dart';
+import 'http.dart';
+import 'job_base_config.dart';
 
 /// The base class of job
 abstract class Job with JobMixin, Mappable {
@@ -91,13 +93,15 @@ abstract class Job with JobMixin, Mappable {
 
   final BaseConfig baseConfig;
 
+  JobType get typeEnum;
+
   Context get context => baseConfig.context;
   Map get map => baseConfig.map;
 
   bool get enabled => baseConfig.enabled;
   bool get overwrite => baseConfig.overwrite;
   Proxy? get proxy => baseConfig.proxy;
-  String get type => baseConfig.type;
+  String get type => typeEnum.toString();
   String get name => baseConfig.name;
   String? get description => baseConfig.description;
   @override
@@ -157,12 +161,41 @@ abstract class Job with JobMixin, Mappable {
   @override
   Map toMap() {
     return {
-      ...baseConfig.toMap(),
-      ...configMap(),
+      ...baseConfig.toMap().where((key, value) => value != null),
+      ...jobMap().where((key, value) => value != null)
     };
   }
 
-  Map configMap();
+  Map jobMap();
+
+  static List<Job> examples(Context context) {
+    final result = <Job>[];
+
+    final types = ['github-release', 'http'];
+
+    for (final type in types) {
+      final typeEnum = JobType.fromString(type);
+      final baseConfig = BaseConfig(
+        context: context,
+        datetime: DateTime.now(),
+        description: 'Download m3u8 files from github release.',
+        proxy: null,
+        map: {},
+        type: typeEnum,
+        enabled: true,
+        overwrite: false,
+        name: '$type-example',
+      );
+
+      if (type == 'github-release') {
+        result.add(GithubReleaseJob.example(baseConfig));
+      } else if (type == 'http') {
+        result.add(HttpJob.example(baseConfig));
+      }
+    }
+
+    return result;
+  }
 }
 
 extension _JobsMap on Map {
@@ -186,10 +219,47 @@ extension _JobsMap on Map {
   dynamic optional(String key) {
     return this[key];
   }
+
+  Map where(bool Function(dynamic key, dynamic value) test) {
+    final result = <String, dynamic>{};
+    for (final entry in entries) {
+      final key = entry.key;
+      final value = entry.value;
+      if (test(key, value)) {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
 }
 
 mixin JobMixin {
   Map<dynamic, dynamic> get params;
 
   Future<void> handleAfterDownload(File asset) async {}
+}
+
+enum JobType {
+  githubRelease,
+  http;
+
+  static JobType fromString(String type) {
+    switch (type) {
+      case 'github-release' || 'gr':
+        return JobType.githubRelease;
+      case 'http':
+        return JobType.http;
+      default:
+        throw ArgumentError('The type of job is not supported.');
+    }
+  }
+
+  String toStringValue() {
+    switch (this) {
+      case JobType.githubRelease:
+        return 'github-release';
+      case JobType.http:
+        return 'http';
+    }
+  }
 }

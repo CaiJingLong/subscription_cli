@@ -6,6 +6,8 @@ import 'package:path/path.dart';
 
 import 'package:subscription_cli/subscription_cli.dart';
 
+import 'job_base_config.dart';
+
 class GithubReleaseJob extends Job {
   const GithubReleaseJob({
     required super.baseConfig,
@@ -19,6 +21,9 @@ class GithubReleaseJob extends Job {
   final String repo;
   final bool includePrerelease;
   final String asset;
+
+  @override
+  JobType get typeEnum => JobType.githubRelease;
 
   @override
   String? analyze() {
@@ -139,12 +144,22 @@ class GithubReleaseJob extends Job {
   }
 
   @override
-  Map configMap() {
+  Map jobMap() {
     return {
       'owner': owner,
       'repo': repo,
       'includePrerelease': includePrerelease,
       'asset': asset,
     };
+  }
+
+  static GithubReleaseJob example(BaseConfig baseConfig) {
+    return GithubReleaseJob(
+      baseConfig: baseConfig,
+      owner: 'caijinglong',
+      repo: 'subscription_cli',
+      asset: 'mac*.tar.gz',
+      includePrerelease: false,
+    );
   }
 }
