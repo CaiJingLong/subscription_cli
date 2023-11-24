@@ -82,7 +82,7 @@ abstract class Job with JobMixin, Mappable {
         owner: owner!,
         repo: repo!,
         asset: map.required('asset'),
-        includePrerelease: map['includePrerelease'] ?? false,
+        includePrerelease: map.requiredDefault('includePrerelease', false),
       );
     }
 
@@ -171,6 +171,14 @@ extension _JobsMap on Map {
     if (value == null) {
       throw ArgumentError('The value of $key is required in job, '
           'but it is not defined.');
+    }
+    return value;
+  }
+
+  dynamic requiredDefault(String key, dynamic defaultValue) {
+    final value = this[key];
+    if (value == null) {
+      return defaultValue;
     }
     return value;
   }

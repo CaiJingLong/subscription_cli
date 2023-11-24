@@ -17,25 +17,37 @@ jobs:
     post:
       src: bin/m3u8_download.exe
       target: /usr/local/bin/m3u8_download
-      mode: "0755"
+      mode: "+x"
     overwrite: true
   - name: kap
     type: github-release
-    owner: wulkano
-    repo: Kap
-    output: "output/kap"
     enabled: false
+    # owner: wulkano
+    # repo: Kap
+    url: https://github.com/wulkano/Kap
     asset: "Kap-*-x64.dmg"
+    output: "output/kap"
     post:
       src: Kap.app
       target: /Applications/Kap.app
     overwrite: true
+  - name: picgo
+    type: github-release
+    owner: Molunerfinn
+    repo: PicGo
+    output: "output/picgo"
+    enabled: true
+    asset: "*-x64.dmg"
+    post:
+      src: PicGo.app
+    overwrite: true
   - name: scli
     type: github-release
-    asset: 'mac*'
+    asset: "mac*"
     url: https://github.com/CaiJingLong/subscription_cli
     output: ./output/scli
+    overwrite: true
     post:
       mode: +x
       target: scli
-    overwrite: true
+      src: scli

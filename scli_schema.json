@@ -71,6 +71,11 @@
             "type": "string",
             "description": "If the type is github-release, the repo is required."
           },
+          "includePrerelease": {
+            "type": "boolean",
+            "default": false,
+            "description": "If include prerelease."
+          },
           "params": {
             "type": "object",
             "description": "The params for the job."

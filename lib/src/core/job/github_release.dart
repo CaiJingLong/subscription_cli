@@ -27,6 +27,7 @@ class GithubReleaseJob extends Job {
     buffer.writeln('owner: $owner');
     buffer.writeln('repo: $repo');
     buffer.writeln('includePrerelease: $includePrerelease');
+    buffer.writeln('asset pattern: $asset');
 
     final url = 'https://api.github.com/repos/$owner/$repo/releases';
     buffer.writeln('release api url: $url');
@@ -45,8 +46,26 @@ class GithubReleaseJob extends Job {
     final url = 'https://api.github.com/repos/$owner/$repo/releases';
 
     final response = await httpClient.get(url);
-    final releaseList = json.decode(response);
-    final latestRelease = releaseList[0];
+    final List releaseList = json.decode(response);
+
+    if (releaseList.isEmpty) {
+      throw Exception('Not found release.');
+    }
+
+    var latestRelease = releaseList[0];
+
+    if (!includePrerelease) {
+      logger.log('include prerelease.');
+
+      for (final release in releaseList) {
+        final isPrerelease = release['prerelease'];
+        if (!isPrerelease) {
+          latestRelease = release;
+          break;
+        }
+      }
+    }
+
     logger.debug('latest release: ${prettyJsonFofObj(latestRelease)}');
 
     final tagName = latestRelease['tag_name'];

@@ -5,12 +5,15 @@ import 'package:args/args.dart';
 
 import 'base_cmd.dart';
 
-class ChoiceJobCommand extends BaseCommond {
+class ChooseJobCommand extends BaseCommond {
   @override
-  String get description => 'Choice a job to run.';
+  String get description => 'Choose a job to run.';
 
   @override
-  String get name => 'choice';
+  String get name => 'choose';
+
+  @override
+  List<String> get aliases => ['c'];
 
   @override
   Future<void> runCommand(ArgResults? argResults) async {
@@ -24,7 +27,7 @@ class ChoiceJobCommand extends BaseCommond {
         print('  ${i + 1}. ${job.name}');
       }
 
-      print('  q. Quit');
+      print('\n  q. Quit');
 
       print('Please enter the number of the job you want to run:');
 

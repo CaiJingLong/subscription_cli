@@ -6,7 +6,7 @@ import 'package:subscription_cli/src/command/base_cmd.dart';
 import 'package:subscription_cli/src/command/example_cmd.dart';
 import 'package:subscription_cli/src/command/run_cmd.dart';
 
-import 'command/choice_job_cmd.dart';
+import 'command/choose_job_cmd.dart';
 import 'command/version_cmd.dart';
 import 'util/log.dart';
 
@@ -31,7 +31,7 @@ class Cli {
     addCommand(AnalyzeCommand());
     addCommand(VersionCommand());
     addCommand(ExampleCommand());
-    addCommand(ChoiceJobCommand());
+    addCommand(ChooseJobCommand());
 
     try {
       await runner.run(arguments);
