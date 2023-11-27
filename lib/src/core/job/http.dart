@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path/path.dart';
+
 import 'job.dart';
 import 'job_base_config.dart';
 
@@ -20,8 +22,16 @@ class HttpJob extends Job {
   }
 
   @override
-  Future<File> doDownload(config) {
-    throw UnimplementedError();
+  Future<File> doDownload(config) async {
+    final httpClient = getHttpClient();
+    final dlDir = getDownloadPath();
+
+    final uri = Uri.parse(url);
+    final filename = uri.pathSegments.last;
+    final outputPath = join(dlDir.path, filename);
+    await httpClient.download(url: url, path: outputPath);
+
+    return File(outputPath);
   }
 
   @override

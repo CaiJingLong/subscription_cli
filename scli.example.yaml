@@ -58,4 +58,9 @@ jobs:
     output: ./output/libchecker
     post:
       # target: libchecker.apk
-      
+  - name: scli_schema
+    description: "Download scli schema file"
+    type: http
+    url: https://raw.githubusercontent.com/CaiJingLong/subscription_cli/master/scli_schema.json
+    output: output/scli_schema
+    overwrite: true

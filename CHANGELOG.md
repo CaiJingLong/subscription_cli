@@ -1,3 +1,7 @@
+## 0.1.5
+
+- Support job type: `http`.
+
 ## 0.1.4
 
 - Feat: ignore config comments line when parse env.

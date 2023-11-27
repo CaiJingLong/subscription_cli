@@ -1,16 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:subscription_cli/src/core/config.dart';
-import 'package:subscription_cli/src/core/handler/handler.dart';
-import 'package:subscription_cli/src/core/mappable.dart';
-import 'package:subscription_cli/src/util/buffer.dart';
 import 'package:path/path.dart' as path;
-import 'package:subscription_cli/src/util/file_util.dart';
-
-import 'github_release.dart';
-import 'http.dart';
-import 'job_base_config.dart';
+import 'package:subscription_cli/subscription_cli.dart';
 
 /// The base class of job
 abstract class Job with JobMixin, Mappable {
@@ -144,6 +136,35 @@ abstract class Job with JobMixin, Mappable {
   String getTempPath() {
     final dt = baseConfig.datetime.millisecondsSinceEpoch;
     return path.join(FileUtils.getTempPath(), '$dt-$name');
+  }
+
+  Directory getDownloadPath() {
+    return Directory(path.join(getTempPath(), 'download'));
+  }
+
+  HttpUtils getHttpClient() {
+    return HttpUtils(proxy: baseConfig.proxy);
+  }
+
+  Future<void> download({
+    required String url,
+    required String path,
+    int? totalSize,
+  }) async {
+    final httpClient = getHttpClient();
+
+    await httpClient.download(
+      url: url,
+      path: path,
+      totalSize: totalSize,
+      downloadBytesCallback: (current, total) {
+        final progress = (current / total * 100).toStringAsFixed(2);
+        logger.write('\rDownload progress: $progress%');
+      },
+      doneCallback: () {
+        logger.write('\n');
+      },
+    );
   }
 
   Future<void> run(Config config) async {

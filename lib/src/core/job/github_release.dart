@@ -101,7 +101,7 @@ class GithubReleaseJob extends Job {
 
   @override
   Future<File> doDownload(config) async {
-    final httpClient = HttpUtils(proxy: baseConfig.proxy);
+    final httpClient = getHttpClient();
     final asset = await findAsset(httpClient);
 
     final needAssetName = asset['name'];
@@ -123,17 +123,10 @@ class GithubReleaseJob extends Job {
 
     logger.log('output file: ${outputFile.path}');
 
-    await httpClient.download(
+    await download(
       url: downloadUrl,
       path: outputFile.path,
       totalSize: asset['size'],
-      downloadBytesCallback: (current, total) {
-        final progress = (current / total * 100).toStringAsFixed(2);
-        logger.write('\rDownload progress: $progress%');
-      },
-      doneCallback: () {
-        logger.write('\n');
-      },
     );
 
     logger.log('Download done.');

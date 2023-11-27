@@ -54,6 +54,11 @@ class HttpUtils {
     int current = 0;
 
     var file = File(path);
+
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
+    }
+
     var sink = file.openWrite();
 
     response.listen(
