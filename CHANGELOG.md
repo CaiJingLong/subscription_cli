@@ -1,3 +1,8 @@
+## 0.1.3
+
+- Feature: Support all extensions files, keep the same name when `post.target` is null.
+- Fix bug: `type` error
+
 ## 0.1.2
 
 Github release:

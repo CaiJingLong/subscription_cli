@@ -28,7 +28,7 @@ abstract class Job with JobMixin, Mappable {
     final proxy = Proxy.byMap(map['proxy']);
     final globalProxy = context.proxy;
     final mergedProxy = Proxy.merge(globalProxy, proxy);
-    final type = map['type'];
+    final typeString = map['type'];
 
     final name = map['name'];
 
@@ -37,10 +37,12 @@ abstract class Job with JobMixin, Mappable {
           'but it is not defined.');
     }
 
-    if (type == null) {
+    if (typeString == null) {
       throw ArgumentError('The type of job is required, '
           'but it is not defined.');
     }
+
+    final type = JobType.fromString(typeString);
 
     final baseConfig = BaseConfig(
       context: context,
@@ -57,11 +59,7 @@ abstract class Job with JobMixin, Mappable {
     );
 
     // Use the type to decide which job to create.
-    final githubTypes = [
-      'github-release',
-      'gr',
-    ];
-    if (githubTypes.contains(type)) {
+    if (type == JobType.githubRelease) {
       String? owner = map.optional('owner');
       String? repo = map.optional('repo');
 
@@ -88,11 +86,7 @@ abstract class Job with JobMixin, Mappable {
       );
     }
 
-    final httpTypes = [
-      'http',
-    ];
-
-    if (httpTypes.contains(type)) {
+    if (type == JobType.http) {
       return HttpJob(
         baseConfig: baseConfig,
         url: map.required('url'),

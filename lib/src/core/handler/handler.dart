@@ -14,6 +14,8 @@ class PostHandler {
 
   late DmgHelper _dmgHelper;
 
+  bool keepOriginal = false;
+
   Future<void> _prepareHandle(File file, String tmpOutputPath) async {
     // check file is dmg
     if (file.path.endsWith('.dmg')) {
@@ -28,9 +30,15 @@ class PostHandler {
       return;
     }
 
-    await extractFileToDisk(file.path, tmpOutputPath);
-    logger.debug('extract file to $tmpOutputPath.');
-    _tempFiles.add(Directory(tmpOutputPath));
+    try {
+      await extractFileToDisk(file.path, tmpOutputPath);
+      logger.debug('extract file to $tmpOutputPath.');
+      _tempFiles.add(Directory(tmpOutputPath));
+    } catch (e) {
+      keepOriginal = true;
+      // copy apk to tmp dir
+      file.copySync(tmpOutputPath);
+    }
   }
 
   Future<void> _afterHandle(Job job, Config config, File file) async {
@@ -124,8 +132,12 @@ class PostHandler {
     try {
       final inputPath =
           normalize(join(tmpOutputPath, job.baseConfig.postSrc ?? '.'));
-      final outputPath =
+      var outputPath =
           normalize(join(job.outputPath, job.baseConfig.postTarget ?? '.'));
+
+      if (keepOriginal && job.baseConfig.postTarget == null) {
+        outputPath = join(outputPath, basename(file.path));
+      }
 
       logger.log('input: $inputPath');
       logger.log('output: $outputPath');

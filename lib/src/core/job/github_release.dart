@@ -6,8 +6,6 @@ import 'package:path/path.dart';
 
 import 'package:subscription_cli/subscription_cli.dart';
 
-import 'job_base_config.dart';
-
 class GithubReleaseJob extends Job {
   const GithubReleaseJob({
     required super.baseConfig,

@@ -51,3 +51,11 @@ jobs:
       mode: +x
       target: scli
       src: scli
+  - name: LibChecker
+    type: github-release
+    asset: "*foss-release.apk"
+    url: https://github.com/LibChecker/LibChecker
+    output: ./output/libchecker
+    post:
+      # target: libchecker.apk
+      

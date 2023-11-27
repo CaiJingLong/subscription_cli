@@ -1,6 +1,6 @@
 name: subscription_cli
 description: Help you to manage your subscription, such as upgrade some package/app to the latest version.
-version: 0.1.2
+version: 0.1.3
 repository: https://github.com/CaiJingLong/subscription_cli.git
 
 environment:
