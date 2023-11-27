@@ -4,11 +4,20 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+    - 'v[0-9]+.[0-9]+.[0-9]+*' # tag pattern on pub.dev: 'v'
 
-# Publish using the reusable workflow from dart-lang.
+# Publish using custom workflow
 jobs:
   publish:
     permissions:
       id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Install dependencies
+        run: dart pub get
+      - name: Auto update version file
+        run: python3 .github/workflows/auto_upgrade_version.py
+      - name: Publish
+        run: dart pub publish --force
