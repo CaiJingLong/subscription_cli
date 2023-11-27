@@ -1,3 +1,7 @@
+## 0.1.4
+
+- Feat: ignore config comments line when parse env.
+
 ## 0.1.3
 
 - Feature: Support all extensions files, keep the same name when `post.target` is null.

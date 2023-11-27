@@ -4,15 +4,27 @@ class EnvUtil {
   static String replaceEnv(String srcText) {
     final RegExp regExp = RegExp(r'\$\{(\w+)\}');
     final StringBuffer buffer = StringBuffer();
-    int start = 0;
-    for (final match in regExp.allMatches(srcText)) {
-      final String key = match.group(1)!;
-      final String value = _getEnv(key);
-      buffer.write(srcText.substring(start, match.start));
-      buffer.write(value);
-      start = match.end;
+
+    for (final line in srcText.split('\n')) {
+      if (line.trim().startsWith('#')) {
+        continue;
+      }
+
+      int start = 0;
+      for (final match in regExp.allMatches(line)) {
+        final String key = match.group(1)!;
+        final String value = _getEnv(key);
+        buffer.write(line.substring(start, match.start));
+        buffer.write(value);
+        start = match.end;
+      }
+      buffer.write(line.substring(start));
+
+      buffer.write('\n');
     }
-    buffer.write(srcText.substring(start));
+
+    print('buffer: \n$buffer');
+
     return buffer.toString();
   }
 
